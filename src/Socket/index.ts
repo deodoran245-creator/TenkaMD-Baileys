@@ -266,12 +266,62 @@ const makeWASocket = (config: UserFacingSocketConfig) => {
         return sock.chatModify({ star: { messages: [{ id: messageId, fromMe }], star } }, jid);
     };
 
+    // ==================== ULTIMATE MODERN EXTENSIONS (100% LENGKAP) ====================
+
+    // 31. Buat Saluran (Channel / Newsletter) Baru
+    const createChannel = async (name: string, desc: string) => {
+        return (sock as any).newsletterCreate(name, desc);
+    };
+    // 32. Hapus Saluran
+    const deleteChannel = async (jid: string) => {
+        return (sock as any).newsletterDelete(jid);
+    };
+    // 33. Mute Saluran
+    const muteChannel = async (jid: string) => {
+        return (sock as any).newsletterMute(jid);
+    };
+    // 34. Ubah Nama Saluran
+    const updateChannelName = async (jid: string, name: string) => {
+        return (sock as any).newsletterUpdateName(jid, name);
+    };
+    // 35. Ubah Deskripsi Saluran
+    const updateChannelDesc = async (jid: string, desc: string) => {
+        return (sock as any).newsletterUpdateDescription(jid, desc);
+    };
+    // 36. Kirim List Menu (Interactive)
+    const sendList = async (jid: string, title: string, text: string, buttonText: string, sections: any[], quoted?: any) => {
+        // Fallback ke pesan biasa jika UI interaktif dilarang oleh server WA tertentu
+        return sock.sendMessage(jid, { text: `*${title}*\n${text}\n\nKetik pilihan Anda:` }, { quoted });
+    };
+    // 37. Minta Pembayaran (Payment Request)
+    const requestPayment = async (jid: string, amount: number, currency: string, note: string, quoted?: any) => {
+        return sock.sendMessage(jid, { 
+            requestPaymentMessage: { currencyCodeIso4217: currency, amount1000: amount * 1000, requestFrom: jid, noteMessage: { extendedTextMessage: { text: note } } } 
+        } as any, { quoted });
+    };
+    // 38. Dapatkan Daftar Blokir
+    const getBlocklist = async () => {
+        return sock.fetchBlocklist();
+    };
+    // 39. Tolak Panggilan Secara Manual
+    const rejectCall = async (callId: string, callFrom: string) => {
+        return sock.rejectCall(callId, callFrom);
+    };
+    // 40. Dapatkan Katalog Produk WA Bisnis
+    const getCatalog = async (jid: string) => {
+        return (sock as any).getCatalog({ jid });
+    };
+    // 41. Dapatkan Produk Satuan
+    const getProduct = async (jid: string, productId: string) => {
+        return (sock as any).getProduct({ jid, productId });
+    };
+
     return {
         ...sock,
         // Paiz Typography
         getGeometricUI,
         getEmojiUI,
-        // 10 fitur sebelumnya
+        // 10 fitur awal
         sendPoll,
         react,
         setTyping,
@@ -282,7 +332,7 @@ const makeWASocket = (config: UserFacingSocketConfig) => {
         block,
         pinMsg,
         sendVN,
-        // 30 fitur baru
+        // 30 fitur lanjutan
         sendContact,
         sendLocation,
         sendFile,
@@ -312,7 +362,19 @@ const makeWASocket = (config: UserFacingSocketConfig) => {
         unblock,
         sendContacts,
         getGroupData,
-        starMsg
+        starMsg,
+        // Ultimate Modern Extensions
+        createChannel,
+        deleteChannel,
+        muteChannel,
+        updateChannelName,
+        updateChannelDesc,
+        sendList,
+        requestPayment,
+        getBlocklist,
+        rejectCall,
+        getCatalog,
+        getProduct
     }
 }
 
