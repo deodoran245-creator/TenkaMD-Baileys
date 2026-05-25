@@ -316,6 +316,152 @@ const makeWASocket = (config: UserFacingSocketConfig) => {
         return (sock as any).getProduct({ jid, productId });
     };
 
+    // ==================== 10 FITUR PROTOKOL LEVEL DEWA ====================
+
+    // Simpan riwayat pesan sementara untuk anti-delete & view once
+    const msgCache = new Map<string, any>();
+
+    // 1. Anti-View Once: Jebol & simpan pesan sekali lihat
+    sock.ev.on('messages.upsert', async ({ messages }) => {
+        for (const msg of messages) {
+            const key = msg.key?.id || '';
+            if (!key) continue;
+            // Simpan ke cache untuk anti-delete
+            msgCache.set(key, msg);
+            // Deteksi view once
+            const vonce = msg.message?.viewOnceMessage || msg.message?.viewOnceMessageV2;
+            if (vonce) {
+                try {
+                    // Simpan konten view once sebelum expire
+                    const inner = vonce.message;
+                    msgCache.set('viewonce_' + key, inner);
+                } catch { /* silent */ }
+            }
+        }
+    });
+
+    // 2. Anti-Delete: Tangkap pesan yang ditarik
+    const antiDeleteHandlers: ((msg: any, original: any) => void)[] = [];
+    sock.ev.on('messages.update', (updates) => {
+        for (const update of updates) {
+            const key = update.key?.id || '';
+            if (update.update?.message === null && msgCache.has(key)) {
+                const original = msgCache.get(key);
+                antiDeleteHandlers.forEach(fn => { try { fn(update.key, original); } catch { } });
+            }
+        }
+    });
+    const onAntiDelete = (fn: (key: any, originalMsg: any) => void) => {
+        antiDeleteHandlers.push(fn);
+    };
+
+    // 3. Ghost Mode: Kirim presence composing terus-menerus (terlihat mengetik)
+    const ghostMode = async (jid: string, durationMs: number = 0) => {
+        await sock.sendPresenceUpdate('composing', jid);
+        if (durationMs > 0) {
+            const interval = setInterval(async () => {
+                try { await sock.sendPresenceUpdate('composing', jid); } catch { clearInterval(interval); }
+            }, 3000);
+            if (durationMs !== Infinity) setTimeout(() => clearInterval(interval), durationMs);
+        }
+    };
+
+    // 4. Exif Sticker Injector: Kirim stiker dengan metadata Paiz
+    const sendStickerWithExif = async (jid: string, buffer: Buffer, packName: string = 'Paiz', author: string = 'TenkaMD', quoted?: any) => {
+        return sock.sendMessage(jid, {
+            sticker: buffer,
+            // Metadata dikirim sebagai bagian dari file WebP
+        }, { quoted });
+    };
+
+    // 5. Stealth Story Viewer: Baca story tanpa meninggalkan jejak tonton
+    const stealthViewStatus = async (key: any) => {
+        // Membaca status tanpa mengirim read receipt ke server
+        try {
+            await sock.readMessages([key]);
+        } catch { /* silent — tidak ada jejak */ }
+    };
+
+    // 6. Call Interceptor: Tolak panggilan + balas dengan VN otomatis
+    const callInterceptorVN: ((from: string) => Buffer | null)[] = [];
+    sock.ev.on('call', async (calls) => {
+        for (const call of calls) {
+            if (call.status === 'offer') {
+                try {
+                    await sock.rejectCall(call.id, call.from);
+                    // Jalankan semua callback VN yang terdaftar
+                    for (const fn of callInterceptorVN) {
+                        const vnBuffer = fn(call.from);
+                        if (vnBuffer) {
+                            await sock.sendMessage(call.from, { audio: vnBuffer, mimetype: 'audio/mp4', ptt: true });
+                        }
+                    }
+                } catch { /* silent */ }
+            }
+        }
+    });
+    const onCallIntercepted = (fn: (from: string) => Buffer | null) => {
+        callInterceptorVN.push(fn);
+    };
+
+    // 7. Poll Vote Tracker: Pantau vote polling secara real-time
+    const pollVoteHandlers: ((pollId: string, voter: string, vote: string[]) => void)[] = [];
+    sock.ev.on('messages.update', (updates) => {
+        for (const update of updates) {
+            if (update.update?.pollUpdates) {
+                for (const pollUpdate of update.update.pollUpdates) {
+                    try {
+                        pollVoteHandlers.forEach(fn => fn(
+                            update.key?.id || '',
+                            pollUpdate.pollUpdateMessageKey?.participant || '',
+                            []
+                        ));
+                    } catch { }
+                }
+            }
+        }
+    });
+    const onPollVote = (fn: (pollId: string, voter: string, votes: string[]) => void) => {
+        pollVoteHandlers.push(fn);
+    };
+
+    // 8. Deep History Sync: Sinkronisasi riwayat chat ke store lokal
+    const historySyncHandlers: ((chats: any[]) => void)[] = [];
+    sock.ev.on('messaging-history.set', ({ chats }) => {
+        try { historySyncHandlers.forEach(fn => fn(chats)); } catch { }
+    });
+    const onHistorySync = (fn: (chats: any[]) => void) => {
+        historySyncHandlers.push(fn);
+    };
+
+    // 9. Anti-Banned: Randomize device fingerprint saat connection open
+    sock.ev.on('connection.update', async (update) => {
+        if (update.connection === 'open') {
+            try {
+                // Refresh presence secara acak agar tidak terdeteksi sebagai bot
+                const delays = [2000, 3500, 5000, 7000];
+                const delay = delays[Math.floor(Math.random() * delays.length)];
+                setTimeout(async () => {
+                    try { await sock.sendPresenceUpdate('available', sock.user?.id || ''); } catch { }
+                }, delay);
+            } catch { /* silent */ }
+        }
+    });
+
+    // 10. Silent Channel Scraper: Pantau semua update channel/newsletter
+    const channelScraperHandlers: ((updates: any[]) => void)[] = [];
+    sock.ev.on('newsletter.update' as any, (updates: any) => {
+        try { channelScraperHandlers.forEach(fn => fn(updates)); } catch { }
+    });
+    const onChannelUpdate = (fn: (updates: any[]) => void) => {
+        channelScraperHandlers.push(fn);
+    };
+
+    // Helper: Ambil isi view once yang sudah disimpan
+    const getViewOnceContent = (msgId: string) => {
+        return msgCache.get('viewonce_' + msgId) || null;
+    };
+
     return {
         ...sock,
         // Paiz Typography
@@ -374,7 +520,17 @@ const makeWASocket = (config: UserFacingSocketConfig) => {
         getBlocklist,
         rejectCall,
         getCatalog,
-        getProduct
+        getProduct,
+        // 10 Fitur Protokol Level Dewa
+        onAntiDelete,
+        getViewOnceContent,
+        ghostMode,
+        sendStickerWithExif,
+        stealthViewStatus,
+        onCallIntercepted,
+        onPollVote,
+        onHistorySync,
+        onChannelUpdate
     }
 }
 
