@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 
-export interface PayDisiniResponse {
+export interface PaymentResponse {
     success: boolean;
     msg: string;
     data?: any;
@@ -8,9 +8,14 @@ export interface PayDisiniResponse {
 
 /**
  * ==============================================================
- * PAIZ PAYMENT GATEWAY API - KELAS DEWA
- * Menghubungkan Baileys langsung ke Payment Gateway resmi di Web
- * Mendukung QRIS, E-Wallet (OVO, DANA, GoPay, ShopeePay), dan VA
+ * PAIZ MEGA PAYMENT GATEWAY API - KELAS DEWA (ULTIMATE EDITION)
+ * 100% Terlengkap sampai ke akar-akarnya. Support semua raksasa:
+ * 1. PayDisini
+ * 2. Tripay
+ * 3. Pakkasir
+ * 4. Tokopay
+ * 5. Midtrans
+ * 6. Xendit
  * ==============================================================
  */
 
@@ -21,14 +26,7 @@ export class PayDisiniGateway {
         this.apiKey = apiKey;
     }
 
-    /**
-     * Buat Tagihan Pembayaran Baru
-     * @param uniqueCode ID Transaksi unik (misal: INV-001)
-     * @param service Kode layanan (misal: 11 untuk QRIS PayDisini)
-     * @param amount Jumlah pembayaran (misal: 50000)
-     * @param note Catatan pembayaran
-     */
-    public async createTransaction(uniqueCode: string, service: string, amount: number, note: string): Promise<PayDisiniResponse> {
+    public async createTransaction(uniqueCode: string, service: string, amount: number, note: string): Promise<PaymentResponse> {
         try {
             const signature = crypto.createHash('md5').update(this.apiKey + uniqueCode + service + amount + 'NewTransaction').digest('hex');
             
@@ -39,25 +37,18 @@ export class PayDisiniGateway {
             params.append('service', service);
             params.append('amount', amount.toString());
             params.append('note', note);
-            params.append('valid_time', '1800'); // 30 menit
-            params.append('type_fee', '1'); // 1 = Biaya ditanggung customer, 2 = merchant
+            params.append('valid_time', '1800');
+            params.append('type_fee', '1');
             params.append('signature', signature);
 
-            const response = await fetch('https://paydisini.co.id/api/', {
-                method: 'POST',
-                body: params
-            });
-
+            const response = await fetch('https://paydisini.co.id/api/', { method: 'POST', body: params });
             return await response.json();
         } catch (err) {
             return { success: false, msg: String(err) };
         }
     }
 
-    /**
-     * Cek Status Transaksi (Pending/Sukses/Batal)
-     */
-    public async checkStatus(uniqueCode: string): Promise<PayDisiniResponse> {
+    public async checkStatus(uniqueCode: string): Promise<PaymentResponse> {
         try {
             const signature = crypto.createHash('md5').update(this.apiKey + uniqueCode + 'StatusTransaction').digest('hex');
             const params = new URLSearchParams();
@@ -66,11 +57,7 @@ export class PayDisiniGateway {
             params.append('unique_code', uniqueCode);
             params.append('signature', signature);
 
-            const response = await fetch('https://paydisini.co.id/api/', {
-                method: 'POST',
-                body: params
-            });
-
+            const response = await fetch('https://paydisini.co.id/api/', { method: 'POST', body: params });
             return await response.json();
         } catch (err) {
             return { success: false, msg: String(err) };
@@ -95,14 +82,7 @@ export class TripayGateway {
         return this.isProduction ? 'https://tripay.co.id/api' : 'https://tripay.co.id/api-sandbox';
     }
 
-    /**
-     * Buat Tagihan Pembayaran Baru (Tripay)
-     * @param method Metode pembayaran (contoh: QRIS)
-     * @param merchantRef ID Transaksi (INV-001)
-     * @param amount Jumlah harga
-     * @param customerData Data pelanggan (nama, email, phone)
-     */
-    public async createTransaction(method: string, merchantRef: string, amount: number, customerData: { name: string, email: string, phone: string }) {
+    public async createTransaction(method: string, merchantRef: string, amount: number, customerData: { name: string, email: string, phone: string }): Promise<PaymentResponse> {
         try {
             const signatureStr = this.merchantCode + merchantRef + amount;
             const signature = crypto.createHmac('sha256', this.privateKey).update(signatureStr).digest('hex');
@@ -120,30 +100,171 @@ export class TripayGateway {
 
             const response = await fetch(`${this.getBaseUrl()}/transaction/create`, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${this.apiKey}`,
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Authorization': `Bearer ${this.apiKey}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-
             return await response.json();
         } catch (err) {
-            return { success: false, message: String(err) };
+            return { success: false, msg: String(err) };
         }
     }
     
-    public async checkStatus(reference: string) {
+    public async checkStatus(reference: string): Promise<PaymentResponse> {
         try {
             const response = await fetch(`${this.getBaseUrl()}/transaction/detail?reference=${reference}`, {
                 method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${this.apiKey}`
-                }
+                headers: { 'Authorization': `Bearer ${this.apiKey}` }
             });
             return await response.json();
         } catch (err) {
-            return { success: false, message: String(err) };
+            return { success: false, msg: String(err) };
+        }
+    }
+}
+
+export class PakkasirGateway {
+    public apiKey: string;
+    
+    constructor(apiKey: string) {
+        this.apiKey = apiKey;
+    }
+
+    public async createQRIS(amount: number, orderId: string): Promise<PaymentResponse> {
+        try {
+            const response = await fetch('https://pakkasir.com/api/v1/qris/create', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${this.apiKey}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount, order_id: orderId })
+            });
+            return await response.json();
+        } catch (err) {
+            return { success: false, msg: String(err) };
+        }
+    }
+
+    public async checkStatus(orderId: string): Promise<PaymentResponse> {
+        try {
+            const response = await fetch(`https://pakkasir.com/api/v1/qris/status?order_id=${orderId}`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${this.apiKey}` }
+            });
+            return await response.json();
+        } catch (err) {
+            return { success: false, msg: String(err) };
+        }
+    }
+}
+
+export class TokoPayGateway {
+    public merchantId: string;
+    public secretKey: string;
+
+    constructor(merchantId: string, secretKey: string) {
+        this.merchantId = merchantId;
+        this.secretKey = secretKey;
+    }
+
+    public async createTransaction(orderId: string, amount: number, method: string = 'QRIS'): Promise<PaymentResponse> {
+        try {
+            const signature = crypto.createHash('md5').update(this.merchantId + this.secretKey + orderId + amount).digest('hex');
+            
+            const payload = {
+                merchant_id: this.merchantId,
+                order_id: orderId,
+                amount: amount,
+                method: method,
+                signature: signature
+            };
+
+            const response = await fetch('https://api.tokopay.id/v1/order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            return await response.json();
+        } catch (err) {
+            return { success: false, msg: String(err) };
+        }
+    }
+
+    public async checkStatus(orderId: string): Promise<PaymentResponse> {
+        try {
+            const signature = crypto.createHash('md5').update(this.merchantId + this.secretKey + orderId).digest('hex');
+            const response = await fetch(`https://api.tokopay.id/v1/order/status?merchant_id=${this.merchantId}&order_id=${orderId}&signature=${signature}`, {
+                method: 'GET'
+            });
+            return await response.json();
+        } catch (err) {
+            return { success: false, msg: String(err) };
+        }
+    }
+}
+
+export class MidtransGateway {
+    public serverKey: string;
+    public isProduction: boolean;
+
+    constructor(serverKey: string, isProduction: boolean = false) {
+        this.serverKey = serverKey;
+        this.isProduction = isProduction;
+    }
+
+    private getBaseUrl() {
+        return this.isProduction ? 'https://app.midtrans.com/snap/v1/transactions' : 'https://app.sandbox.midtrans.com/snap/v1/transactions';
+    }
+
+    public async createTransaction(orderId: string, amount: number): Promise<PaymentResponse> {
+        try {
+            const authStr = Buffer.from(this.serverKey + ':').toString('base64');
+            const payload = {
+                transaction_details: { order_id: orderId, gross_amount: amount },
+                credit_card: { secure: true }
+            };
+
+            const response = await fetch(this.getBaseUrl(), {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Basic ${authStr}`
+                },
+                body: JSON.stringify(payload)
+            });
+            return await response.json();
+        } catch (err) {
+            return { success: false, msg: String(err) };
+        }
+    }
+}
+
+export class XenditGateway {
+    public secretKey: string;
+
+    constructor(secretKey: string) {
+        this.secretKey = secretKey;
+    }
+
+    public async createInvoice(externalId: string, amount: number, payerEmail: string, description: string): Promise<PaymentResponse> {
+        try {
+            const authStr = Buffer.from(this.secretKey + ':').toString('base64');
+            const payload = {
+                external_id: externalId,
+                amount: amount,
+                payer_email: payerEmail,
+                description: description
+            };
+
+            const response = await fetch('https://api.xendit.co/v2/invoices', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Basic ${authStr}`
+                },
+                body: JSON.stringify(payload)
+            });
+            return await response.json();
+        } catch (err) {
+            return { success: false, msg: String(err) };
         }
     }
 }
@@ -151,4 +272,8 @@ export class TripayGateway {
 export class PaizPaymentGateway {
     public static PayDisini = PayDisiniGateway;
     public static Tripay = TripayGateway;
+    public static Pakkasir = PakkasirGateway;
+    public static TokoPay = TokoPayGateway;
+    public static Midtrans = MidtransGateway;
+    public static Xendit = XenditGateway;
 }
