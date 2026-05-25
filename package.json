@@ -50,6 +50,7 @@
     "gradient-string": "^3.0.0",
     "libsignal": "^6.0.0",
     "lru-cache": "^11.1.0",
+    "md5": "^2.3.0",
     "music-metadata": "^11.12.3",
     "p-queue": "^9.0.0",
     "pino": "^9.6",
