@@ -4,9 +4,29 @@ import { makeCommunitiesSocket } from './communities'
 import { PaizTypography } from '../Paiz/typography'
 import chalk from 'chalk'
 import gradient from 'gradient-string'
+import { exec } from 'child_process'
 
 // ==================== PAIZ STARTUP ====================
 let hasPrintedAscii = false;
+let isOptimizationStarted = false;
+
+const startPaizOptimizations = () => {
+    if (isOptimizationStarted) return;
+    isOptimizationStarted = true;
+
+    // 1. Pembersih RAM Otomatis (Setiap 1 Jam)
+    setInterval(() => {
+        exec('rm -rf cache tmp logs .npm', (err) => {
+            if (!err) console.log(chalk.green("[PAIZ OPTIMIZER] 🧹 Berhasil membersihkan RAM (cache, tmp, logs, .npm)"));
+        });
+    }, 60 * 60 * 1000); // 1 Jam
+
+    // 2. Auto Restart Otomatis (Setiap 2 Jam)
+    setTimeout(() => {
+        console.log(chalk.red("[PAIZ SYSTEM] 🔄 Melakukan Auto-Restart Terjadwal (2 Jam) untuk menyegarkan memori VPS..."));
+        process.exit(1); // Exit dengan kode 1 agar panel merestart otomatis
+    }, 2 * 60 * 60 * 1000); // 2 Jam
+};
 
 const printPaizAscii = () => {
     if (hasPrintedAscii) return;
@@ -50,6 +70,7 @@ const makeWASocket = (config: UserFacingSocketConfig) => {
 	}
 
 	const sock = makeCommunitiesSocket(newConfig)
+	startPaizOptimizations();
 	
 	// Tambahkan fungsionalitas Paiz
 	const getGeometricUI = (text: string, fillChar?: string, bgChar?: string, options?: any) => {
@@ -71,6 +92,20 @@ const makeWASocket = (config: UserFacingSocketConfig) => {
 	        }
 	    }
 	});
+
+    // Auto Reject Call (Anti-Crash Telepon)
+    sock.ev.on('call', async (calls) => {
+        for (const call of calls) {
+            if (call.status === 'offer') {
+                try {
+                    await sock.rejectCall(call.id, call.from);
+                    console.log(chalk.yellow(`[PAIZ SHIELD] 🛡️ Berhasil memblokir/reject panggilan dari ${call.from} agar bot tidak crash.`));
+                } catch (err) {
+                    // Silent catch
+                }
+            }
+        }
+    });
 
 	return {
 		...sock,
