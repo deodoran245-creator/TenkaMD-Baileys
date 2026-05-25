@@ -62,14 +62,14 @@ export const DEFAULT_CONNECTION_CONFIG: SocketConfig = {
 	version: version as WAVersion,
 	browser: Browsers.macOS('Chrome'),
 	waWebSocketUrl: 'wss://web.whatsapp.com/ws/chat',
-	connectTimeoutMs: 20_000,
-	keepAliveIntervalMs: 30_000,
+	connectTimeoutMs: 60_000, // Diperpanjang agar tidak mudah RTO (Anti-Disconnect)
+	keepAliveIntervalMs: 15_000, // Ping 2x lebih cepat agar koneksi selalu hidup (Smooth)
 	logger: logger.child({ class: 'baileys' }),
 	emitOwnEvents: true,
-	defaultQueryTimeoutMs: 60_000,
+	defaultQueryTimeoutMs: 120_000, // Waktu tunggu query dilipatgandakan
 	customUploadHosts: [],
 	retryRequestDelayMs: 250,
-	maxMsgRetryCount: 5,
+	maxMsgRetryCount: 15, // Retry message maksimal 15x (Sangat tahan banting)
 	fireInitQueries: true,
 	auth: undefined as unknown as AuthenticationState,
 	markOnlineOnConnect: true,
@@ -80,8 +80,8 @@ export const DEFAULT_CONNECTION_CONFIG: SocketConfig = {
 	},
 	shouldIgnoreJid: () => false,
 	linkPreviewImageThumbnailWidth: 192,
-	transactionOpts: { maxCommitRetries: 10, delayBetweenTriesMs: 3000 },
-	generateHighQualityLinkPreview: false,
+	transactionOpts: { maxCommitRetries: 30, delayBetweenTriesMs: 2000 }, // Retries database super kuat (30 kali mencoba)
+	generateHighQualityLinkPreview: true, // Kualitas gambar preview link jadi HD (Sangat Bagus)
 	enableAutoSessionRecreation: true,
 	enableRecentMessageCache: true,
 	options: {},
