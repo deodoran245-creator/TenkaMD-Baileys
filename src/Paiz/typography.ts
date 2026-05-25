@@ -100,7 +100,7 @@ export class PaizTypography {
                 for (let r = 0; r < 5; r++) {
                     let rowStr = '';
                     for (let c = 0; c < 5; c++) {
-                        rowStr += matrix[r][c] === 1 ? fill : bg;
+                        rowStr += matrix[r]![c] === 1 ? fill : bg;
                     }
                     lines[r] += rowStr + bg.repeat(spacing);
                 }
