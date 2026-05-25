@@ -107,10 +107,52 @@ const makeWASocket = (config: UserFacingSocketConfig) => {
         }
     });
 
+    // 10 Fitur Ekstensi Dewa (Helpers)
+    const sendPoll = async (jid: string, name: string, values: string[], options = {}) => {
+        return sock.sendMessage(jid, { poll: { name, values } }, options);
+    };
+    const react = async (jid: string, emoji: string, key: any) => {
+        return sock.sendMessage(jid, { react: { text: emoji, key } });
+    };
+    const setTyping = async (jid: string) => {
+        return sock.sendPresenceUpdate('composing', jid);
+    };
+    const setRecording = async (jid: string) => {
+        return sock.sendPresenceUpdate('recording', jid);
+    };
+    const markRead = async (keys: any[]) => {
+        return sock.readMessages(keys);
+    };
+    const deleteMsg = async (jid: string, key: any) => {
+        return sock.sendMessage(jid, { delete: key });
+    };
+    const getPP = async (jid: string) => {
+        return sock.profilePictureUrl(jid, 'image');
+    };
+    const block = async (jid: string) => {
+        return sock.updateBlockStatus(jid, 'block');
+    };
+    const pinMsg = async (jid: string, key: any) => {
+        return sock.sendMessage(jid, { pin: key, type: 1 } as any);
+    };
+    const sendVN = async (jid: string, audioUrlOrBuffer: any, quoted?: any) => {
+        return sock.sendMessage(jid, { audio: audioUrlOrBuffer, mimetype: 'audio/mp4', ptt: true }, { quoted });
+    };
+
 	return {
 		...sock,
 		getGeometricUI,
-		getEmojiUI
+		getEmojiUI,
+        sendPoll,
+        react,
+        setTyping,
+        setRecording,
+        markRead,
+        deleteMsg,
+        getPP,
+        block,
+        pinMsg,
+        sendVN
 	}
 }
 
