@@ -1,4 +1,3 @@
-// @ts-nocheck
 export class ObjectRepository<T extends object> {
 	readonly entityMap: Map<string, T>
 

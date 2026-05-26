@@ -1,7 +1,8 @@
 // @ts-nocheck
-import { caching, Storage } from 'cache-manager'
-import { proto } from '../../WAProto'
-import { AuthenticationCreds } from '../Types'
+import { createCache as caching } from 'cache-manager'
+import type { Storage } from 'cache-manager'
+import { proto } from '../../WAProto/index.js'
+import type { AuthenticationCreds } from '../Types'
 import { BufferJSON, initAuthCreds } from '../Utils'
 import logger from '../Utils/logger'
 
