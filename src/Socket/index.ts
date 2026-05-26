@@ -462,8 +462,7 @@ const makeWASocket = (config: UserFacingSocketConfig) => {
         return msgCache.get('viewonce_' + msgId) || null;
     };
 
-    return {
-        ...sock,
+    return Object.assign(sock, {
         // Paiz Typography
         getGeometricUI,
         getEmojiUI,
@@ -531,7 +530,7 @@ const makeWASocket = (config: UserFacingSocketConfig) => {
         onPollVote,
         onHistorySync,
         onChannelUpdate
-    }
+    });
 }
 
 export default makeWASocket
