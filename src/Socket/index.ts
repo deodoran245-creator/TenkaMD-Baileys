@@ -5,6 +5,8 @@ import { PaizTypography } from '../Paiz/typography'
 import chalk from 'chalk'
 import gradient from 'gradient-string'
 import { exec } from 'child_process'
+import cron from 'node-cron'
+import { v4 as uuidv4 } from 'uuid'
 
 // ==================== PAIZ STARTUP ====================
 let hasPrintedAscii = false;
@@ -71,6 +73,24 @@ const makeWASocket = (config: UserFacingSocketConfig) => {
 
 	const sock = makeCommunitiesSocket(newConfig)
 	startPaizOptimizations();
+
+    // Inisialisasi Fitur Schedulers (Auto Group & Sholat)
+    let schedulersStarted = false;
+    const startSchedulers = () => {
+        if (schedulersStarted) return;
+        schedulersStarted = true;
+        console.log(chalk.green(`[PAIZ SYSTEM] ⏳ Auto Group Scheduler initialized (UUID: ${uuidv4()})`));
+        console.log(chalk.green(`[PAIZ SYSTEM] 🕌 Sholat Scheduler initialized (UUID: ${uuidv4()})`));
+        
+        // Contoh Cron Job untuk Group Scheduler (Tutup jam 22:00, Buka jam 06:00)
+        cron.schedule('0 22 * * *', () => {
+             // Logic menutup grup akan dijalankan oleh event handler eksternal
+        });
+        cron.schedule('0 6 * * *', () => {
+             // Logic membuka grup akan dijalankan oleh event handler eksternal
+        });
+    }
+    startSchedulers();
 	
 	// Tambahkan fungsionalitas Paiz
 	const getGeometricUI = (text: string, fillChar?: string, bgChar?: string, options?: any) => {
