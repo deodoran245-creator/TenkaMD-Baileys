@@ -174,29 +174,34 @@ export default (
 
 		ev.on('contacts.update', async updates => {
 			for(const update of updates) {
-				let contact: Contact
+				let contact: Contact | undefined
 				if(contacts[update.id!]) {
 					contact = contacts[update.id!]
 				} else {
-					const contactHashes = await Promise.all(Object.keys(contacts).map(async a => {
-						return (await md5(Buffer.from(a + 'WA_ADD_NOTIF', 'utf8'))).toString('base64').slice(0, 3)
-					}))
-					contact = contacts[contactHashes.find(a => a === update.id) || '']
-				}
-
-				if(update.imgUrl === 'changed' || update.imgUrl === 'removed') {
-					if(contact) {
-						if(update.imgUrl === 'changed') {
-							contact.imgUrl = socket ? await socket?.profilePictureUrl(contact.id) : undefined
-						} else {
-							delete contact.imgUrl
-						}
-					} else {
-						return logger.debug({ update }, 'got update for non-existant contact')
+					try {
+						const contactHashes = await Promise.all(Object.keys(contacts).map(async a => {
+							return (await md5(Buffer.from(a + 'WA_ADD_NOTIF', 'utf8'))).toString('base64').slice(0, 3)
+						}))
+						contact = contacts[contactHashes.find(a => a === update.id) || '']
+					} catch {
+						contact = undefined
 					}
 				}
 
-				Object.assign(contacts[update.id!], contact)
+				if(!contact) {
+					logger.debug({ update }, 'got update for non-existant contact')
+					continue
+				}
+
+				if(update.imgUrl === 'changed' || update.imgUrl === 'removed') {
+					if(update.imgUrl === 'changed') {
+						contact.imgUrl = socket ? await socket?.profilePictureUrl(contact.id).catch(() => undefined) : undefined
+					} else {
+						delete contact.imgUrl
+					}
+				}
+
+				contacts[update.id!] = Object.assign(contacts[update.id!] || {}, contact)
 			}
 		})
 		ev.on('chats.upsert', newChats => {
