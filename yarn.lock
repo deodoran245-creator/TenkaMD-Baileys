@@ -316,6 +316,11 @@
   resolved "https://registry.npmjs.org/@esbuild/win32-x64/-/win32-x64-0.28.0.tgz"
   integrity sha512-pEl1bO9mfAmIC+tW5btTmrKaujg3zGtUmWNdCw/xs70FBjwAL3o9OEKNHvNmnyylD6ubxUERiEhdsL0xBQ9efw==
 
+"@eshaz/web-worker@1.2.2":
+  version "1.2.2"
+  resolved "https://registry.npmjs.org/@eshaz/web-worker/-/web-worker-1.2.2.tgz"
+  integrity sha512-WxXiHFmD9u/owrzempiDlBB1ZYqiLnm9s6aPc8AlFQalq2tKmqdmMr9GXOupDgzXtqnBipj8Un0gkIm7Sjf8mw==
+
 "@eslint-community/eslint-utils@^4.8.0", "@eslint-community/eslint-utils@^4.9.1":
   version "4.9.1"
   resolved "https://registry.npmjs.org/@eslint-community/eslint-utils/-/eslint-utils-4.9.1.tgz"
@@ -1405,6 +1410,18 @@
   dependencies:
     "@sinonjs/commons" "^3.0.1"
 
+"@thi.ng/bitstream@^2.2.12":
+  version "2.4.52"
+  resolved "https://registry.npmjs.org/@thi.ng/bitstream/-/bitstream-2.4.52.tgz"
+  integrity sha512-uOOJ4QxJ8lK7juR2gGZHbISPsPGLp4w7PLFG7pTPG+t+8Hkanl3Syu3LMPq0DGJbAX7U5l1TrKvLoNeNta3OsA==
+  dependencies:
+    "@thi.ng/errors" "^2.6.14"
+
+"@thi.ng/errors@^2.6.14":
+  version "2.6.14"
+  resolved "https://registry.npmjs.org/@thi.ng/errors/-/errors-2.6.14.tgz"
+  integrity sha512-dSqLPZh5wOe329Ks2pJqoDmtjSv2g4KpXEP5/IQ5J9qvrEyNrRBCuaKHUKYUltQ1OUHGd9L5hBqGJl65Hlnu+g==
+
 "@tokenizer/inflate@^0.4.1":
   version "0.4.1"
   resolved "https://registry.npmjs.org/@tokenizer/inflate/-/inflate-0.4.1.tgz"
@@ -1679,6 +1696,21 @@
   version "1.12.2"
   resolved "https://registry.npmjs.org/@unrs/resolver-binding-win32-x64-msvc/-/resolver-binding-win32-x64-msvc-1.12.2.tgz"
   integrity sha512-nAB74NfSNKknqQ1RrYj6uz8FcXEomu/MATJZxh/x+BArzN2U3JbOYC0APYzUIGhVY3m5hRxA8VPNdPBoG8txlA==
+
+"@wasm-audio-decoders/common@9.0.7":
+  version "9.0.7"
+  resolved "https://registry.npmjs.org/@wasm-audio-decoders/common/-/common-9.0.7.tgz"
+  integrity sha512-WRaUuWSKV7pkttBygml/a6dIEpatq2nnZGFIoPTc5yPLkxL6Wk4YaslPM98OPQvWacvNZ+Py9xROGDtrFBDzag==
+  dependencies:
+    "@eshaz/web-worker" "1.2.2"
+    simple-yenc "^1.0.4"
+
+"@wasm-audio-decoders/opus-ml@0.0.2":
+  version "0.0.2"
+  resolved "https://registry.npmjs.org/@wasm-audio-decoders/opus-ml/-/opus-ml-0.0.2.tgz"
+  integrity sha512-58rWEqDGg+CKCyEeKm2KoxxSwTWtHh/NLTW9ObR4K8CGF6VwuuGudEI1CtniS/oSRmL1nJq/eh8MKARiluw4DQ==
+  dependencies:
+    "@wasm-audio-decoders/common" "9.0.7"
 
 "@whiskeysockets/eslint-config@^1.0.0":
   version "1.0.0"
@@ -2186,6 +2218,11 @@ co@^4.6.0:
   version "4.6.0"
   resolved "https://registry.npmjs.org/co/-/co-4.6.0.tgz"
   integrity sha512-QVb0dM5HvG+uaxitm8wONl7jltx8dqhfU33DcqtOZcLSVIKSDDLDi7+0LbAKiyI8hD9u42m2YxXSkMGWThaecQ==
+
+codec-parser@2.5.0:
+  version "2.5.0"
+  resolved "https://registry.npmjs.org/codec-parser/-/codec-parser-2.5.0.tgz"
+  integrity sha512-Ru9t80fV8B0ZiixQl8xhMTLru+dzuis/KQld32/x5T/+3LwZb0/YvQdSKytX9JqCnRdiupvAvyYJINKrXieziQ==
 
 collect-v8-coverage@^1.0.2:
   version "1.0.3"
@@ -4083,7 +4120,7 @@ lines-and-columns@^1.1.6:
   resolved "https://registry.npmjs.org/lines-and-columns/-/lines-and-columns-1.2.4.tgz"
   integrity sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==
 
-link-preview-js@^3.0.0:
+link-preview-js@^3.2.0:
   version "3.2.0"
   resolved "https://registry.npmjs.org/link-preview-js/-/link-preview-js-3.2.0.tgz"
   integrity sha512-FvrLltjOPGbTzt+RugbzM7g8XuUNLPO2U/INSLczrYdAA32E7nZVUrVL1gr61DGOArGJA2QkPGMEvNMLLsXREA==
@@ -4565,6 +4602,13 @@ optionator@^0.9.3:
     type-check "^0.4.0"
     word-wrap "^1.2.5"
 
+opus-decoder@0.7.11:
+  version "0.7.11"
+  resolved "https://registry.npmjs.org/opus-decoder/-/opus-decoder-0.7.11.tgz"
+  integrity sha512-+e+Jz3vGQLxRTBHs8YJQPRPc1Tr+/aC6coV/DlZylriA29BdHQAYXhvNRKtjftof17OFng0+P4wsFIqQu3a48A==
+  dependencies:
+    "@wasm-audio-decoders/common" "9.0.7"
+
 ora@9.3.0:
   version "9.3.0"
   resolved "https://registry.npmjs.org/ora/-/ora-9.3.0.tgz"
@@ -5021,6 +5065,11 @@ qified@^0.10.1:
   dependencies:
     hookified "^2.1.1"
 
+qrcode-terminal@^0.12.0:
+  version "0.12.0"
+  resolved "https://registry.npmjs.org/qrcode-terminal/-/qrcode-terminal-0.12.0.tgz"
+  integrity sha512-EXtzRZmC+YGmGlDFbXKxQiMZNwCLEO6BANKXG4iCtSIM0yqc/pappSx3RIKr4r0uh5JsBckOXeKrB3Iz7mdQpQ==
+
 querystring@0.2.0:
   version "0.2.0"
   resolved "https://registry.npmjs.org/querystring/-/querystring-0.2.0.tgz"
@@ -5192,7 +5241,7 @@ semver@7.7.4:
   resolved "https://registry.npmjs.org/semver/-/semver-7.7.4.tgz"
   integrity sha512-vFKC2IEtQnVhpT78h1Yp8wzwrf8CM+MzKMHGJZfBtzhZNycRFnXsHk6E5TxIkkMsgNS7mdX3AGB7x2QM2di4lA==
 
-sharp@*:
+sharp@^0.34.5:
   version "0.34.5"
   resolved "https://registry.npmjs.org/sharp/-/sharp-0.34.5.tgz"
   integrity sha512-Ou9I5Ft9WNcCbXrU9cMgPBcCK8LiwLqcbywW3t4oDV37n1pzpuNLsYiAV8eODnjbtQlSDwZ2cUEeQz4E54Hltg==
@@ -5252,6 +5301,11 @@ simple-xml-to-json@^1.2.2:
   version "1.2.7"
   resolved "https://registry.npmjs.org/simple-xml-to-json/-/simple-xml-to-json-1.2.7.tgz"
   integrity sha512-mz9VXphOxQWX3eQ/uXCtm6upltoN0DLx8Zb5T4TFC4FHB7S9FDPGre8CfLWqPWQQH/GrQYd2AXhhVM5LDpYx6Q==
+
+simple-yenc@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.npmjs.org/simple-yenc/-/simple-yenc-1.0.4.tgz"
+  integrity sha512-5gvxpSd79e9a3V4QDYUqnqxeD4HGlhCakVpb6gMnDD7lexJggSBJRBO5h52y/iJrdXRilX9UCuDaIJhSWm5OWw==
 
 slash@^3.0.0:
   version "3.0.0"
