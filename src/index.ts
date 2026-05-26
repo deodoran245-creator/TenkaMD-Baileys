@@ -7,6 +7,7 @@ export * from './Defaults/index'
 export * from './WABinary/index'
 export * from './WAM/index'
 export * from './WAUSync/index'
+export * from './Store/index'
 export * from './Paiz/typography'
 export * from './Paiz/payment'
 
