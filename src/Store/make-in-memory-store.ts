@@ -1,5 +1,6 @@
 // @ts-nocheck
-import KeyedDB from '@adiwajshing/keyed-db'
+import KeyedDBPkg from '@adiwajshing/keyed-db'
+import type KeyedDBType from '@adiwajshing/keyed-db'
 import type { Comparable } from '@adiwajshing/keyed-db/lib/Types'
 import type { Logger } from 'pino'
 import { writeFileSync, readFileSync, existsSync } from 'fs'
@@ -83,15 +84,16 @@ export default (
 	chatKey = chatKey || waChatKey(true)
 	labelAssociationKey = labelAssociationKey || waLabelAssociationKey
 	const logger = _logger || DEFAULT_CONNECTION_CONFIG.logger.child({ stream: 'in-mem-store' })
+	const KeyedDB = KeyedDBPkg.default || KeyedDBPkg
 
-	const chats = new KeyedDB(chatKey, c => c.id) as KeyedDB<Chat, string>
+	const chats = new KeyedDB(chatKey, c => c.id) as KeyedDBType<Chat, string>
 	const messages: { [_: string]: ReturnType<typeof makeMessagesDictionary> } = {}
 	const contacts: { [_: string]: Contact } = {}
 	const groupMetadata: { [_: string]: GroupMetadata } = {}
 	const presences: { [id: string]: { [participant: string]: PresenceData } } = {}
 	const state: ConnectionState = { connection: 'close' }
 	const labels = new ObjectRepository<Label>(predefinedLabels)
-	const labelAssociations = new KeyedDB(labelAssociationKey, labelAssociationKey.key) as KeyedDB<LabelAssociation, string>
+	const labelAssociations = new KeyedDB(labelAssociationKey, labelAssociationKey.key) as KeyedDBType<LabelAssociation, string>
 
 	const assertMessageList = (jid: string) => {
 		if(!messages[jid]) {
