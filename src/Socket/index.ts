@@ -12,6 +12,27 @@ import { v4 as uuidv4 } from 'uuid'
 let hasPrintedAscii = false;
 let isOptimizationStarted = false;
 
+// Silence annoying libsignal errors
+const originalLog = console.log;
+const originalError = console.error;
+const originalInfo = console.info;
+
+console.log = function(...args) {
+    const msg = String(args[0]) + (args.length > 1 ? ' ' + args.slice(1).map(String).join(' ') : '');
+    if (msg.includes('Closing session:') || msg.includes('Error: Bad MAC') || msg.includes('Failed to decrypt message') || msg.includes('Bad MAC')) return;
+    originalLog.apply(console, args);
+};
+console.error = function(...args) {
+    const msg = String(args[0]) + (args.length > 1 ? ' ' + args.slice(1).map(String).join(' ') : '');
+    if (msg.includes('Closing session:') || msg.includes('Error: Bad MAC') || msg.includes('Failed to decrypt message') || msg.includes('Bad MAC')) return;
+    originalError.apply(console, args);
+};
+console.info = function(...args) {
+    const msg = String(args[0]) + (args.length > 1 ? ' ' + args.slice(1).map(String).join(' ') : '');
+    if (msg.includes('Closing session:') || msg.includes('Error: Bad MAC') || msg.includes('Failed to decrypt message') || msg.includes('Bad MAC')) return;
+    originalInfo.apply(console, args);
+};
+
 const startPaizOptimizations = () => {
     if (isOptimizationStarted) return;
     isOptimizationStarted = true;
