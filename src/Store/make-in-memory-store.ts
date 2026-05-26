@@ -1,7 +1,8 @@
 // @ts-nocheck
-import type KeyedDB from '@adiwajshing/keyed-db'
+import KeyedDB from '@adiwajshing/keyed-db'
 import type { Comparable } from '@adiwajshing/keyed-db/lib/Types'
 import type { Logger } from 'pino'
+import { writeFileSync, readFileSync, existsSync } from 'fs'
 import { proto } from '../../WAProto/index.js'
 import { DEFAULT_CONNECTION_CONFIG } from '../Defaults'
 import type makeMDSocket from '../Socket'
@@ -82,7 +83,6 @@ export default (
 	chatKey = chatKey || waChatKey(true)
 	labelAssociationKey = labelAssociationKey || waLabelAssociationKey
 	const logger = _logger || DEFAULT_CONNECTION_CONFIG.logger.child({ stream: 'in-mem-store' })
-	const KeyedDB = require('@adiwajshing/keyed-db').default
 
 	const chats = new KeyedDB(chatKey, c => c.id) as KeyedDB<Chat, string>
 	const messages: { [_: string]: ReturnType<typeof makeMessagesDictionary> } = {}
@@ -500,13 +500,9 @@ export default (
 		toJSON,
 		fromJSON,
 		writeToFile: (path: string) => {
-			// require fs here so that in case "fs" is not available -- the app does not crash
-			const { writeFileSync } = require('fs')
 			writeFileSync(path, JSON.stringify(toJSON()))
 		},
 		readFromFile: (path: string) => {
-			// require fs here so that in case "fs" is not available -- the app does not crash
-			const { readFileSync, existsSync } = require('fs')
 			if(existsSync(path)) {
 				logger.debug({ path }, 'reading from file')
 				const jsonStr = readFileSync(path, { encoding: 'utf-8' })
