@@ -2717,6 +2717,9 @@ message Message {
             optional string title = 1;
             optional string subtitle = 2;
             optional bool hasMediaAttachment = 5;
+            optional string thumbnailUrl = 10;
+            optional int32 mediaType = 11;
+            optional bool renderLargerThumbnail = 12;
             oneof media {
                 Message.DocumentMessage documentMessage = 3;
                 Message.ImageMessage imageMessage = 4;

@@ -6854,6 +6854,9 @@ export namespace proto {
                 title?: (string|null);
                 subtitle?: (string|null);
                 hasMediaAttachment?: (boolean|null);
+                thumbnailUrl?: (string|null);
+                mediaType?: (number|null);
+                renderLargerThumbnail?: (boolean|null);
                 documentMessage?: (proto.Message.IDocumentMessage|null);
                 imageMessage?: (proto.Message.IImageMessage|null);
                 jpegThumbnail?: (Uint8Array|null);
@@ -6867,6 +6870,9 @@ export namespace proto {
                 public title?: (string|null);
                 public subtitle?: (string|null);
                 public hasMediaAttachment?: (boolean|null);
+                public thumbnailUrl?: (string|null);
+                public mediaType?: (number|null);
+                public renderLargerThumbnail?: (boolean|null);
                 public documentMessage?: (proto.Message.IDocumentMessage|null);
                 public imageMessage?: (proto.Message.IImageMessage|null);
                 public jpegThumbnail?: (Uint8Array|null);
